@@ -3,21 +3,27 @@ import {
   Instagram,
   Twitter,
   Linkedin,
-  Dribbble,
-  Github,
 } from "lucide-react";
 
 /* -----------------------------------------------
    TYPE DEFINITIONS
 ----------------------------------------------- */
 
-interface FooterColumnProps {
-  title: string;
-  links: string[];
+// 1. Updated: Links ab object hain (Label + URL)
+interface FooterLink {
+  label: string;
+  href: string;
 }
 
+interface FooterColumnProps {
+  title: string;
+  links: FooterLink[]; // Array of objects
+}
+
+// 2. Updated: Added 'link' prop here
 interface MagneticSocialIconProps {
-  icon: React.ReactNode; // Fixed: Changed JSX.Element to React.ReactNode
+  icon: React.ReactNode;
+  link: string;
 }
 
 interface Position {
@@ -30,7 +36,12 @@ interface Position {
 ----------------------------------------------- */
 
 const Footer = () => {
-  // Fixed: Removed unused 'copied', 'email', and 'handleCopy' variables
+  // Define Links Here
+  const socialLinks = {
+    instagram: "https://www.instagram.com/webier.in/",
+    linkedin: "https://www.linkedin.com/company/webierdev/",
+    twitter: "#", // Replace with actual link
+  };
 
   return (
     <footer className="relative bg-[#3533cd] text-white pb-24 overflow-hidden">
@@ -68,27 +79,43 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* RIGHT COLUMNS */}
+          {/* RIGHT COLUMNS - UPDATED WITH LINKS */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-16 md:gap-24">
             <FooterColumn
               title="Navigation"
-              links={["Work", "Services", "Agency", "Careers"]}
+              links={[
+                { label: "Work", href: "/#work" },
+                { label: "Services", href: "/#services" },
+                { label: "Process", href: "/#process" },
+                { label: "Impact", href: "/#impact" },
+              ]}
             />
             <FooterColumn
               title="Socials"
-              links={["Instagram", "Twitter", "LinkedIn", "Awwwards"]}
+              links={[
+                { label: "Instagram", href: socialLinks.instagram },
+                { label: "Twitter", href: socialLinks.twitter },
+                { label: "LinkedIn", href: socialLinks.linkedin },
+              ]}
             />
-            <FooterColumn title="Legal" links={["Privacy", "Terms"]} />
+            
           </div>
         </div>
 
-        {/* SOCIAL ICONS */}
+        {/* SOCIAL ICONS - UPDATED WITH LINKS */}
         <div className="flex gap-6 mt-20">
-          <MagneticSocialIcon icon={<Instagram size={20} />} />
-          <MagneticSocialIcon icon={<Twitter size={20} />} />
-          <MagneticSocialIcon icon={<Linkedin size={20} />} />
-          <MagneticSocialIcon icon={<Dribbble size={20} />} />
-          <MagneticSocialIcon icon={<Github size={20} />} />
+          <MagneticSocialIcon 
+            icon={<Instagram size={20} />} 
+            link={socialLinks.instagram} 
+          />
+          <MagneticSocialIcon 
+            icon={<Twitter size={20} />} 
+            link={socialLinks.twitter} 
+          />
+          <MagneticSocialIcon 
+            icon={<Linkedin size={20} />} 
+            link={socialLinks.linkedin} 
+          />
         </div>
 
       </div>
@@ -105,7 +132,7 @@ const Footer = () => {
 };
 
 /* -----------------------------------------------
-   FOOTER COLUMN Component
+   FOOTER COLUMN Component (Updated)
 ----------------------------------------------- */
 
 const FooterColumn = ({ title, links }: FooterColumnProps) => (
@@ -114,15 +141,23 @@ const FooterColumn = ({ title, links }: FooterColumnProps) => (
       {title}
     </span>
 
-    {links.map((item: string) => (
-      <a
-        key={item}
-        href="#"
-        className="text-2xl md:text-3xl font-bold text-white/90 hover:text-white transition"
-      >
-        {item}
-      </a>
-    ))}
+    {links.map((item) => {
+      // Check if link is external (starts with http) to open in new tab
+      const isExternal = item.href.startsWith("http");
+
+      return (
+        <a
+          key={item.label}
+          href={item.href}
+          // Only open in new tab if it's an external link
+          target={isExternal ? "_blank" : "_self"}
+          rel={isExternal ? "noopener noreferrer" : undefined}
+          className="text-2xl md:text-3xl font-bold text-white/90 hover:text-white transition"
+        >
+          {item.label}
+        </a>
+      );
+    })}
   </div>
 );
 
@@ -137,18 +172,19 @@ const StarIcon = () => (
 );
 
 /* -----------------------------------------------
-   MAGNETIC SOCIAL ICON
+   MAGNETIC SOCIAL ICON (Updated)
 ----------------------------------------------- */
 
-const MagneticSocialIcon = ({ icon }: MagneticSocialIconProps) => {
+const MagneticSocialIcon = ({ icon, link }: MagneticSocialIconProps) => {
   const ref = useRef<HTMLAnchorElement | null>(null);
   const [pos, setPos] = useState<Position>({ x: 0, y: 0 });
 
   return (
     <a
-      href="#"
+      href={link}
+      target="_blank" // Opens in new tab
+      rel="noopener noreferrer" // Security
       ref={ref}
-      // Fixed: Added explicit React.MouseEvent type
       onMouseMove={(e: React.MouseEvent<HTMLAnchorElement>) => {
         if (!ref.current) return;
 

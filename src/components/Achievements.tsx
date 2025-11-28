@@ -1,7 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Trophy, Globe, Users, Zap, Star, ArrowUpRight } from 'lucide-react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// 1. Define the shape of a Stat object
+gsap.registerPlugin(ScrollTrigger);
+
+// 1. Types
 interface Stat {
   id: string;
   type: string;
@@ -14,6 +19,7 @@ interface Stat {
   icon: React.ElementType | null;
 }
 
+// 2. Data
 const stats: Stat[] = [
   { 
     id: "metric-01",
@@ -21,8 +27,8 @@ const stats: Stat[] = [
     value: 40, 
     suffix: "M+", 
     label: "Economic Impact", 
-    sub: "Revenue generated for clients",
-    desc: "We don't just design; we drive growth. Our strategic interventions have unlocked over $40M in new value streams for our partners across fintech and commerce.",
+    sub: "Revenue Unlocked",
+    desc: "We don't just design; we drive growth. Our strategic interventions have unlocked over $40M in new value streams.",
     colSpan: "md:col-span-2",
     icon: Zap
   },
@@ -84,56 +90,77 @@ const stats: Stat[] = [
 ];
 
 const Achievements = () => {
-  // 2. Fix Ref type for Section
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
+  useGSAP(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+    // 1. Header Animation (Slide Up)
+    gsap.from(".impact-header", {
+      y: 100,
+      opacity: 0,
+      duration: 1.2,
+      ease: "power4.out",
+      scrollTrigger: {
+        trigger: container,
+        start: "top 80%",
+      }
+    });
+
+    // 2. Cards Stagger Animation
+    gsap.from(".bento-card", {
+      y: 100,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.1,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".bento-grid",
+        start: "top 85%",
+      }
+    });
+
+  }, { scope: containerRef });
 
   return (
     <section 
-      ref={sectionRef}
-      className="relative w-full bg-white text-[#1a1a1a] py-32 px-4 md:px-8 font-sans"
+      ref={containerRef}
+      className="relative w-full bg-white text-[#1a1a1a] py-32 px-4 md:px-12 lg:px-24 font-sans overflow-hidden"
     >
       <div className="max-w-[1600px] mx-auto">
         
-        {/* Header - Editorial Style */}
-        <div className="flex flex-col gap-12 mb-24 pb-8 border-b border-[#1a1a1a]/10">
-          <div className="flex justify-between items-end">
-             <h2 className="text-[12vw] md:text-[9rem] font-black leading-[0.8] tracking-tighter uppercase text-[#1a1a1a]">
-               Our<br/>
-               <span className="text-transparent" style={{ WebkitTextStroke: '2px #1a1a1a' }}>Impact</span>
-             </h2>
-             <div className="hidden md:flex flex-col items-end gap-2 mb-4">
-                <span className="font-mono text-xs uppercase tracking-widest text-[#1a1a1a]/60">
-                   Performance • 2024
-                </span>
+        {/* --- HEADER (Updated Layout) --- */}
+        {/* Added: items-center (mobile), md:items-end (desktop), text-center (mobile), md:text-left (desktop) */}
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-24 border-b border-black/10 pb-8 text-center md:text-left">
+          
+          <div className="w-full md:w-auto">
+            <h2 className="impact-header font-display text-7xl md:text-9xl font-black uppercase tracking-tighter text-[#3533CD] leading-[0.85]">
+              Our <br />
+              <span
+                className="text-transparent"
+                style={{ WebkitTextStroke: "1px black" }}
+              >
+                Impact
+              </span>
+            </h2>
+          </div>
+
+          <div className="impact-header flex items-center gap-4 mt-8 md:mt-0">
+             <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-[#FFC947] rounded-full animate-ping"></span>
+                <span className="w-2 h-2 bg-[#FFC947] rounded-full absolute"></span>
              </div>
+             <p className="font-mono text-xs uppercase tracking-[0.2em] text-black/50">
+               / Performance 2024
+             </p>
           </div>
         </div>
 
-        {/* BENTO GRID LAYOUT */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <BentoCard 
-              key={stat.id} 
-              stat={stat} 
-              isVisible={isVisible} 
-              delay={index * 150}
-            />
+        {/* --- BENTO GRID --- */}
+        <div className="bento-grid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {stats.map((stat) => (
+            <BentoCard key={stat.id} stat={stat} />
           ))}
         </div>
 
@@ -142,115 +169,117 @@ const Achievements = () => {
   );
 };
 
-// 3. Define Props for Sub-component
-interface BentoCardProps {
-  stat: Stat;
-  isVisible: boolean;
-  delay: number;
-}
-
-const BentoCard = ({ stat, isVisible, delay }: BentoCardProps) => {
-  const [count, setCount] = useState(0);
-  // 4. Fix Ref type for Div
+/* --------------------------------------------------
+   SUB-COMPONENT: BENTO CARD
+   Handles its own hover logic & number counting
+-------------------------------------------------- */
+const BentoCard = ({ stat }: { stat: Stat }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  
-  // FIXED: Removed unused 'isHovering' state
+  const numberRef = useRef<HTMLSpanElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
-  // Count Up Logic
-  useEffect(() => {
-    if (isVisible) {
-      let start = 0;
-      const end = stat.value;
-      const duration = 2000; 
-      const incrementTime = Math.max(10, Math.abs(Math.floor(duration / (end || 1))));
+  // GSAP Animations for Card
+  useGSAP(() => {
+    const card = cardRef.current;
+    const numberEl = numberRef.current;
+    if (!card || !numberEl) return;
 
-      const timer = setInterval(() => {
-        if (start < end) {
-           start += 1;
-           setCount(start);
-        } else {
-           clearInterval(timer);
+    // 1. Number Counter Animation using ScrollTrigger
+    gsap.fromTo(numberEl, 
+      { textContent: 0 },
+      {
+        textContent: stat.value,
+        duration: 2.5,
+        ease: "power2.out",
+        snap: { textContent: 1 }, // Snap to whole numbers
+        scrollTrigger: {
+          trigger: card,
+          start: "top 85%",
         }
-      }, incrementTime);
+      }
+    );
 
-      return () => clearInterval(timer);
-    }
-  }, [isVisible, stat.value]);
+    // 2. Mouse Move Spotlight Effect
+    const xTo = gsap.quickTo(spotlightRef.current, "x", { duration: 0.4, ease: "power3" });
+    const yTo = gsap.quickTo(spotlightRef.current, "y", { duration: 0.4, ease: "power3" });
 
-  // 5. Fix Event type
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      xTo(x);
+      yTo(y);
+    };
+
+    card.addEventListener("mousemove", handleMouseMove);
+    return () => card.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   return (
     <div 
       ref={cardRef}
-      onMouseMove={handleMouseMove}
-      // FIXED: Removed unused onMouseEnter/onMouseLeave handlers
+      id='impact'
       className={`
-        group relative bg-white rounded-3xl p-8 md:p-10 flex flex-col justify-between overflow-hidden
-        transition-all duration-700 ease-out hover:shadow-2xl hover:-translate-y-1
+        bento-card group relative 
+        bg-[#fcfcfc] border border-black/5 rounded-[2rem] 
+        p-8 md:p-10 flex flex-col justify-between overflow-hidden
+        transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:border-black/10
         ${stat.colSpan}
       `}
-      style={{ 
-        opacity: isVisible ? 1 : 0, 
-        transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
-        transitionDelay: `${delay}ms`
-      }}
     >
-      {/* SPOTLIGHT EFFECT LAYER */}
+      {/* SPOTLIGHT GRADIENT */}
       <div 
-        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0"
-        style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.15), transparent 40%)`
-        }}
+        ref={spotlightRef}
+        className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#3533cd]/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
       />
 
-      {/* Top Row: Icon & Label */}
-      <div className="flex justify-between items-start mb-8 relative z-10">
-        <div className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-[#1a1a1a]/40 border border-[#1a1a1a]/10 px-2 py-1 rounded-full w-fit group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+      {/* TOP: Header Info */}
+      <div className="relative z-10 flex justify-between items-start mb-12">
+        <div className="flex flex-col gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-black/40 border border-black/5 px-2 py-1 rounded-md w-fit group-hover:bg-[#3533cd] group-hover:text-white group-hover:border-transparent transition-colors duration-300">
                 {stat.sub}
             </span>
-            <h3 className="text-lg md:text-xl font-bold uppercase tracking-tight text-[#1a1a1a]">
+            <h3 className="font-display text-xl font-bold uppercase tracking-tight text-[#1a1a1a]">
                 {stat.label}
             </h3>
         </div>
+        
+        {/* Icon Container */}
         {stat.icon && (
-            <div className="w-10 h-10 rounded-full bg-[#f5f5f7] flex items-center justify-center text-[#1a1a1a] group-hover:bg-[#3533cd] group-hover:text-white transition-all duration-300 group-hover:scale-110">
-                <stat.icon size={18} />
+            <div className="w-12 h-12 rounded-full bg-[#f0f0f0] flex items-center justify-center text-[#1a1a1a] group-hover:bg-[#3533cd] group-hover:text-white transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
+                <stat.icon size={20} />
             </div>
         )}
       </div>
 
-      {/* Middle: The Number */}
-      <div className="relative z-10 mb-6">
+      {/* MIDDLE: Huge Number */}
+      <div className="relative z-10 mb-8">
         <div className="flex items-baseline">
-            <span className={`font-black tracking-tighter text-[#1a1a1a] leading-none transition-colors duration-300 group-hover:text-[#3533cd] ${stat.type === 'primary' ? 'text-7xl md:text-9xl' : 'text-6xl md:text-7xl'}`}>
-                {count}
+            <span 
+              ref={numberRef}
+              className={`font-display font-black tracking-tighter text-[#1a1a1a] leading-[0.9] group-hover:text-[#3533cd] transition-colors duration-300 ${stat.type === 'primary' ? 'text-7xl md:text-9xl' : 'text-6xl md:text-7xl'}`}
+            >
+                0
             </span>
-            <span className={`font-thin text-[#1a1a1a]/40 ml-1 ${stat.type === 'primary' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl'}`}>
+            <span className={`font-display font-thin text-[#1a1a1a]/40 ml-1 ${stat.type === 'primary' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl'}`}>
                 {stat.suffix}
             </span>
         </div>
       </div>
 
-      {/* Bottom: Description */}
+      {/* BOTTOM: Description */}
       <div className="relative z-10">
-        <p className="font-sans text-sm md:text-base text-[#1a1a1a]/60 leading-relaxed font-medium max-w-md group-hover:text-[#1a1a1a]/80 transition-colors">
+        <div className="w-full h-[1px] bg-black/5 mb-6 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+        <p className="font-sans text-sm md:text-base text-[#1a1a1a]/60 leading-relaxed font-medium max-w-md group-hover:text-[#1a1a1a] transition-colors duration-300">
             {stat.desc}
         </p>
       </div>
       
-      {/* Hover Reveal Arrow */}
-      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-10">
-         <ArrowUpRight className="text-[#3533cd]" size={24} />
+      {/* HOVER ARROW (Bottom Right) */}
+      <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 z-10">
+         <div className="w-10 h-10 rounded-full bg-[#3533cd] text-white flex items-center justify-center shadow-lg">
+            <ArrowUpRight size={20} />
+         </div>
       </div>
 
     </div>

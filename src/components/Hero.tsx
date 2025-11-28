@@ -208,6 +208,7 @@ const Hero: React.FC = () => {
   return (
     <section 
       ref={containerRef} 
+      id='hero'
       className="relative w-full h-screen flex flex-col items-center justify-center bg-[#f6f6fa] overflow-hidden text-primary"
     >
       {/* Canvas Layer */}
@@ -222,12 +223,12 @@ const Hero: React.FC = () => {
         {/* Top Meta Details */}
         <div className="absolute top-28 w-full max-w-[90vw] flex justify-between font-display text-xs md:text-sm font-semibold tracking-widest uppercase opacity-40 hero-meta">
           <span>Est. 2025</span>
-          <span>Global Digital Agency</span>
+          <span>Web Dev Agency</span>
         </div>
 
         {/* Massive Headline */}
         <div className="flex flex-col items-center mix-blend-multiply">
-          <h1 className="font-display font-bold text-[18vw] leading-[0.8] tracking-tighter text-black transform scale-x-125 origin-center hero-title overflow-visible whitespace-nowrap">
+          <h1 className="font-display font-bold text-[18vw] leading-[0.8] tracking-tighter text-blue-800 transform scale-x-125 origin-center hero-title overflow-visible whitespace-nowrap">
             {/* Split characters for granular control */}
             {['W','E','B','I','E','R'].map((char, i) => (
               <span 

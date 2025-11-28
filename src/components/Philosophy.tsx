@@ -18,7 +18,7 @@ const Philosophy = () => {
   const glowRef = useRef<HTMLDivElement | null>(null);
 
   /* ---------------------------------------------------------
-     GSAP SPLIT + ANIMATIONS
+      GSAP SPLIT + ANIMATIONS
   --------------------------------------------------------- */
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -34,7 +34,8 @@ const Philosophy = () => {
       textElement.innerHTML = words
         .map(
           (word: string) =>
-            `<span class="word inline-block opacity-10 cursor-default transition-colors duration-200" style="transform-origin: center bottom;">${word}&nbsp;</span>`
+            // Maine "transition-colors" hata diya kyunki ab hover effect nahi hai
+            `<span class="word inline-block opacity-10 cursor-default" style="transform-origin: center bottom;">${word}&nbsp;</span>`
         )
         .join("");
 
@@ -72,7 +73,7 @@ const Philosophy = () => {
         }
       );
 
-      /* Paragraph word stagger reveal */
+      /* Paragraph word stagger reveal (Scroll Animation Only) */
       gsap.fromTo(
         wordElements,
         {
@@ -96,39 +97,15 @@ const Philosophy = () => {
         }
       );
 
-      /* Hover Effects */
-      wordElements.forEach((word: HTMLSpanElement) => {
-        word.addEventListener("mouseenter", () => {
-          gsap.to(word, {
-            color: "#3533cd",
-            y: -5,
-            scale: 1.1,
-            skewX: -10,
-            textShadow: "0px 5px 10px rgba(53, 51, 205, 0.3)",
-            duration: 0.3,
-            ease: "back.out(1.7)",
-          });
-        });
+      // Maine yahan se Hover Logic remove kar di hai
 
-        word.addEventListener("mouseleave", () => {
-          gsap.to(word, {
-            color: "#000000",
-            y: 0,
-            scale: 1,
-            skewX: 0,
-            textShadow: "none",
-            duration: 0.3,
-            ease: "power2.out",
-          });
-        });
-      });
     }, container);
 
     return () => ctx.revert();
   }, []);
 
   /* ---------------------------------------------------------
-     MOUSE FOLLOW GLOW
+      MOUSE FOLLOW GLOW
   --------------------------------------------------------- */
   useEffect(() => {
     const container = containerRef.current;
@@ -156,11 +133,12 @@ const Philosophy = () => {
   }, []);
 
   /* ---------------------------------------------------------
-     RENDER
+      RENDER
   --------------------------------------------------------- */
   return (
     <section
       ref={containerRef}
+      id="about"
       className="relative w-full py-32 px-6 md:px-12 lg:px-24 bg-[#f6f6fa] overflow-hidden"
     >
       {/* Glow */}
@@ -175,10 +153,10 @@ const Philosophy = () => {
           <div className="sticky top-32">
             <h2
               ref={titleRef}
-              className="font-display text-4xl md:text-5xl font-bold uppercase tracking-tighter text-[#148ac4] leading-none"
+              className="font-display text-4xl md:text-5xl font-bold uppercase tracking-tighter text-BLACK leading-none"
             >
               The <br />
-              <span className="text-[#000000]">Philosophy</span>
+              <span className="text-[#3533CD]">Philosophy</span>
             </h2>
 
             <div
