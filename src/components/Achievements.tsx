@@ -1,10 +1,23 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Trophy, Globe, Users, Zap, Star, ArrowUpRight } from 'lucide-react';
 
-const stats = [
+// 1. Define the shape of a Stat object
+interface Stat {
+  id: string;
+  type: string;
+  value: number;
+  suffix: string;
+  label: string;
+  sub: string;
+  desc: string;
+  colSpan: string;
+  icon: React.ElementType | null; // Fix for icon type
+}
+
+const stats: Stat[] = [
   { 
     id: "metric-01",
-    type: "primary", // Large Card
+    type: "primary", 
     value: 40, 
     suffix: "M+", 
     label: "Economic Impact", 
@@ -37,7 +50,7 @@ const stats = [
   },
   { 
     id: "metric-04",
-    type: "wide", // Wide Card
+    type: "wide", 
     value: 8, 
     suffix: "", 
     label: "Global Footprint", 
@@ -71,7 +84,8 @@ const stats = [
 ];
 
 const Achievements = () => {
-  const sectionRef = useRef(null);
+  // 2. Fix Ref type for Section
+  const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -128,9 +142,17 @@ const Achievements = () => {
   );
 };
 
-const BentoCard = ({ stat, isVisible, delay }) => {
+// 3. Define Props for Sub-component
+interface BentoCardProps {
+  stat: Stat;
+  isVisible: boolean;
+  delay: number;
+}
+
+const BentoCard = ({ stat, isVisible, delay }: BentoCardProps) => {
   const [count, setCount] = useState(0);
-  const cardRef = useRef(null);
+  // 4. Fix Ref type for Div
+  const cardRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
@@ -144,10 +166,10 @@ const BentoCard = ({ stat, isVisible, delay }) => {
 
       const timer = setInterval(() => {
         if (start < end) {
-            start += 1;
-            setCount(start);
+           start += 1;
+           setCount(start);
         } else {
-            clearInterval(timer);
+           clearInterval(timer);
         }
       }, incrementTime);
 
@@ -155,8 +177,8 @@ const BentoCard = ({ stat, isVisible, delay }) => {
     }
   }, [isVisible, stat.value]);
 
-  // Mouse Move Logic for Spotlight
-  const handleMouseMove = (e) => {
+  // 5. Fix Event type
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     setMousePosition({

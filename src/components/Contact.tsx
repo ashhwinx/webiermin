@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { ArrowUpRight, Copy, Check, Mail, Instagram, Twitter, Linkedin } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { ArrowUpRight, Copy, Check, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const Contact = () => {
   const [copied, setCopied] = useState(false);
@@ -30,7 +30,7 @@ const Contact = () => {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3533cd]"></span>
                 </span>
                 <span className="font-mono text-xs uppercase tracking-widest text-black/60">
-                    Available for new projects
+                   Available for new projects
                 </span>
              </div>
         </div>
@@ -92,7 +92,14 @@ const Contact = () => {
 
 // --- Sub Components ---
 
-const SocialLink = ({ href, icon, label }) => (
+// 1. Define Interface for Props
+interface SocialLinkProps {
+    href: string;
+    icon: React.ReactNode;
+    label: string;
+}
+
+const SocialLink = ({ href, icon, label }: SocialLinkProps) => (
     <a 
         href={href} 
         className="group flex items-center gap-2 text-black/60 hover:text-[#3533cd] transition-colors duration-300"
@@ -104,10 +111,15 @@ const SocialLink = ({ href, icon, label }) => (
 
 // Custom Magnetic Button Component
 const MagneticButton = () => {
-    const btnRef = useRef(null);
+    // 2. Fix Ref Type
+    const btnRef = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 
-    const handleMouseMove = (e) => {
+    // 3. Fix Event Type
+    const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+        // 4. Add Null Safety Check
+        if (!btnRef.current) return;
+
         const { clientX, clientY } = e;
         const { left, top, width, height } = btnRef.current.getBoundingClientRect();
         

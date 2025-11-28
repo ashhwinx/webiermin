@@ -4,10 +4,8 @@
     "target": "ES2022",
     "lib": ["ES2022"],
     "module": "ESNext",
-    "moduleResolution": "Node",
-
+    "moduleResolution": "bundler",
     "types": ["node"],
-
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
