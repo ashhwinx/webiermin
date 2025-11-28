@@ -1,5 +1,33 @@
-import React, { useRef, useState } from "react";
-import { ArrowUpRight, Copy, Check, Twitter, Instagram, Linkedin, Dribbble, Github } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  Instagram,
+  Twitter,
+  Linkedin,
+  Dribbble,
+  Github,
+} from "lucide-react";
+
+/* -----------------------------------------------
+   TYPE DEFINITIONS
+----------------------------------------------- */
+
+interface FooterColumnProps {
+  title: string;
+  links: string[];
+}
+
+interface MagneticSocialIconProps {
+  icon: JSX.Element;
+}
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+/* -----------------------------------------------
+   MAIN FOOTER
+----------------------------------------------- */
 
 const Footer = () => {
   const [copied, setCopied] = useState(false);
@@ -12,9 +40,9 @@ const Footer = () => {
   };
 
   return (
-    <footer className="relative bg-[#3533cd] text-white  pb-24 overflow-hidden">
+    <footer className="relative bg-[#3533cd] text-white pb-24 overflow-hidden">
 
-      {/* Ticker (Still works but inside normal flow) */}
+      {/* TICKER */}
       <div className="w-full py-6 bg-black/20 border-b border-white/10 backdrop-blur-sm overflow-hidden">
         <div className="flex gap-12 animate-marquee whitespace-nowrap">
           {[...Array(10)].map((_, i) => (
@@ -28,34 +56,40 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* CONTENT */}
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 mt-28">
-
-        {/* CONTACT CTA */}
-       
 
         {/* GRID */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-20">
 
-          {/* manifesto */}
+          {/* LEFT TEXT */}
           <div className="flex flex-col gap-8 max-w-xl">
             <h3 className="font-display text-6xl md:text-7xl font-black leading-[0.9]">
-              Webier<br />Agency.
+              Webier <br />
+              Agency.
             </h3>
+
             <p className="font-sans text-white/80 text-xl leading-relaxed max-w-md font-light">
-              We exist to eliminate the gap between <span className="font-bold">human intent</span> and <span className="font-bold">digital execution</span>.
+              We exist to eliminate the gap between{" "}
+              <span className="font-bold">human intent</span> and{" "}
+              <span className="font-bold">digital execution</span>.
             </p>
           </div>
 
-          {/* columns */}
+          {/* RIGHT COLUMNS */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-16 md:gap-24">
-            <FooterColumn title="Navigation" links={["Work", "Services", "Agency", "Careers"]} />
-            <FooterColumn title="Socials" links={["Instagram", "Twitter", "LinkedIn", "Awwwards"]} />
+            <FooterColumn
+              title="Navigation"
+              links={["Work", "Services", "Agency", "Careers"]}
+            />
+            <FooterColumn
+              title="Socials"
+              links={["Instagram", "Twitter", "LinkedIn", "Awwwards"]}
+            />
             <FooterColumn title="Legal" links={["Privacy", "Terms"]} />
           </div>
         </div>
 
-        {/* bottom icons */}
+        {/* SOCIAL ICONS */}
         <div className="flex gap-6 mt-20">
           <MagneticSocialIcon icon={<Instagram size={20} />} />
           <MagneticSocialIcon icon={<Twitter size={20} />} />
@@ -66,7 +100,7 @@ const Footer = () => {
 
       </div>
 
-      {/* Watermark */}
+      {/* WATERMARK */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full flex justify-center opacity-10 pointer-events-none">
         <h1 className="font-display font-black text-[22vw] tracking-tighter text-white leading-none translate-y-[20%]">
           WEBIER
@@ -77,16 +111,31 @@ const Footer = () => {
   );
 };
 
-const FooterColumn = ({ title, links }) => (
+/* -----------------------------------------------
+   FOOTER COLUMN Component
+----------------------------------------------- */
+
+const FooterColumn = ({ title, links }: FooterColumnProps) => (
   <div className="flex flex-col gap-6">
-    <span className="font-mono text-xs uppercase tracking-[0.2em] text-white/40">{title}</span>
-    {links.map((item) => (
-      <a key={item} href="#" className="text-2xl md:text-3xl font-bold text-white/90 hover:text-white transition">
+    <span className="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
+      {title}
+    </span>
+
+    {links.map((item: string) => (
+      <a
+        key={item}
+        href="#"
+        className="text-2xl md:text-3xl font-bold text-white/90 hover:text-white transition"
+      >
         {item}
       </a>
     ))}
   </div>
 );
+
+/* -----------------------------------------------
+   STAR ICON (STATIC)
+----------------------------------------------- */
 
 const StarIcon = () => (
   <svg width="24" height="24" fill="currentColor" className="text-white/50">
@@ -94,16 +143,23 @@ const StarIcon = () => (
   </svg>
 );
 
-const MagneticSocialIcon = ({ icon }) => {
-  const ref = useRef(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+/* -----------------------------------------------
+   MAGNETIC SOCIAL ICON
+----------------------------------------------- */
+
+const MagneticSocialIcon = ({ icon }: MagneticSocialIconProps) => {
+  const ref = useRef<HTMLAnchorElement | null>(null);
+  const [pos, setPos] = useState<Position>({ x: 0, y: 0 });
 
   return (
     <a
       href="#"
       ref={ref}
       onMouseMove={(e) => {
+        if (!ref.current) return;
+
         const rect = ref.current.getBoundingClientRect();
+
         setPos({
           x: (e.clientX - (rect.left + rect.width / 2)) * 0.5,
           y: (e.clientY - (rect.top + rect.height / 2)) * 0.5,
