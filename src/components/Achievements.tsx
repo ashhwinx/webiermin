@@ -136,6 +136,7 @@ const Achievements = () => {
   return (
     <section 
       ref={containerRef}
+      id='impact'
       className="relative w-full bg-white text-[#1a1a1a] py-32 px-4 md:px-12 lg:px-24 font-sans overflow-hidden"
     >
       <div className="max-w-[1600px] mx-auto">
